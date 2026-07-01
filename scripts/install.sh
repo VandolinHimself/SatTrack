@@ -10,7 +10,8 @@
 #   source .venv/bin/activate && python run.py doctor && python run.py
 #
 # Options:
-#   --skip-kismet       Skip Kismet (no ADS-B map / no SDR sharing handoff)
+#   --non-interactive   Skip prompts; write config.example.json defaults
+#   --skip-kismet       Skip Kismet install (no ADS-B map / no SDR sharing handoff)
 #   --skip-satdump      Skip SatDump install/build
 #   --skip-gr           Skip gr-satellites build (slow; amateur telemetry only)
 #   --skip-meteor       Skip meteor_demod/meteor_decode build
@@ -21,21 +22,25 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 # shellcheck source=lib/pkg_manager.sh
 source "$SCRIPT_DIR/lib/pkg_manager.sh"
+# shellcheck source=lib/banner.sh
+source "$SCRIPT_DIR/lib/banner.sh"
 
 SKIP_KISMET=0
 SKIP_SATDUMP=0
 SKIP_GR=0
 SKIP_METEOR=0
+NON_INTERACTIVE=0
 
 for arg in "$@"; do
   case "$arg" in
+    --non-interactive) NON_INTERACTIVE=1 ;;
     --skip-kismet)  SKIP_KISMET=1 ;;
     --skip-satdump) SKIP_SATDUMP=1 ;;
     --skip-gr)      SKIP_GR=1 ;;
     --skip-meteor)  SKIP_METEOR=1 ;;
     --minimal)      SKIP_GR=1; SKIP_METEOR=1 ;;
     -h|--help)
-      sed -n '2,14p' "$0"
+      sed -n '2,18p' "$0"
       exit 0
       ;;
     *) echo "[!] Unknown option: $arg" >&2; exit 1 ;;
@@ -196,6 +201,7 @@ install_gr_satellites() {
 }
 
 patch_config_for_local_kismet() {
+  # Legacy helper — prefer configure_wizard.py for new installs.
   local cfg="$1"
   [[ -f "$cfg" ]] || return 0
   python3 - "$cfg" <<'PY'
@@ -221,6 +227,17 @@ print(f"  configured {path} for local Kismet (127.0.0.1:2501)")
 PY
 }
 
+run_configure_wizard() {
+  local wiz=(python3 "$SCRIPT_DIR/configure_wizard.py" --repo "$REPO_DIR" -o "$REPO_DIR/config.json")
+  if [[ "$SKIP_KISMET" -eq 1 ]]; then
+    wiz+=(--skip-kismet)
+  fi
+  if [[ "$NON_INTERACTIVE" -eq 1 ]]; then
+    wiz+=(--defaults --force)
+  fi
+  "${wiz[@]}"
+}
+
 setup_python_venv() {
   log "Creating Python virtualenv at $REPO_DIR/.venv ..."
   if [[ ! -d "$REPO_DIR/.venv" ]]; then
@@ -239,16 +256,13 @@ setup_python_venv() {
 
 main() {
   require_linux
+  print_sattrack_banner
   detect_pkg_manager
   log "SatTrack installer — detected package manager: $PKG_MGR"
   log "Repo: $REPO_DIR"
 
-  local created_config=0
-  if [[ ! -f "$REPO_DIR/config.json" ]] && [[ -f "$REPO_DIR/config.example.json" ]]; then
-    cp "$REPO_DIR/config.example.json" "$REPO_DIR/config.json"
-    created_config=1
-    log "Created config.json from config.example.json — edit observer location before running."
-  fi
+  log "Station configuration wizard ..."
+  run_configure_wizard
 
   pkg_update
   log "Installing core packages (RTL-SDR, SoX, Python, build tools) ..."
@@ -264,9 +278,6 @@ main() {
 
   if [[ "$SKIP_KISMET" -eq 0 ]]; then
     install_kismet || true
-    if [[ "$created_config" -eq 1 ]]; then
-      patch_config_for_local_kismet "$REPO_DIR/config.json" || true
-    fi
   else
     warn "Skipping Kismet (--skip-kismet)"
   fi
