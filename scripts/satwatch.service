@@ -1,0 +1,27 @@
+# SatTrack systemd unit — auto-start the sky watcher on boot.
+#
+# Install (from repo root):
+#   sudo bash scripts/install_service.sh
+#
+# Manual install:
+#   sudo cp scripts/satwatch.service /etc/systemd/system/satwatch.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now satwatch
+#   journalctl -u satwatch -f
+
+[Unit]
+Description=SatTrack ground-station watcher (event-driven RTL-SDR capture)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/jellyboy/MCP-Kali/SatTrack
+ExecStart=/usr/bin/python3 /home/jellyboy/MCP-Kali/SatTrack/run.py watch
+Restart=on-failure
+RestartSec=10
+Environment=SATTRACK_DATA=/var/lib/sattracker
+
+[Install]
+WantedBy=multi-user.target

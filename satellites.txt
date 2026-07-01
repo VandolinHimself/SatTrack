@@ -1,0 +1,8 @@
+# SatTrack — NORAD catalog IDs of interest (one per line, '#' = comment).
+# Kept for compatibility with tle_gen.py. The authoritative registry
+# (with frequencies + decoders) is config.json; these IDs mirror it.
+25544
+57166
+43017
+27607
+39444

@@ -1,0 +1,24 @@
+# Append to /etc/traefik/traefik.yml (or your Traefik dynamic config).
+# Upstream: SatTrack on lucius — http://10.0.10.121:8082
+#
+# WebSockets (/ws) work automatically — no extra middleware needed.
+# Remove the authentik middleware block if you want the dashboard public.
+
+http:
+  routers:
+    sattrack-router:
+      rule: "Host(`sattracker.luciuswayne.com`)"
+      # middlewares:
+      #   - authentik
+      service: sattrack-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    sattrack-service:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.10.121:8082"
+        passHostHeader: true

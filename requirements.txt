@@ -1,0 +1,10 @@
+# SatTrack Python dependencies
+# Install with:  pip install -r requirements.txt
+requests>=2.31
+numpy>=1.24
+sgp4>=2.23
+skyfield>=1.49
+
+# Web dashboard (python run.py serve)
+fastapi>=0.110
+uvicorn[standard]>=0.27
