@@ -268,8 +268,6 @@ def build_config_interactive(repo_dir: Path, *, enable_kismet: bool) -> dict[str
         on = ask_yes_no(preset["label"], default=preset["default"])
         entry = deepcopy(preset["entry"])
         entry["enabled"] = on
-        if preset["key"] == "iss_sstv" and on:
-            entry["enabled"] = True
         satellites.append(entry)
 
     if not any(s.get("enabled", True) for s in satellites):
