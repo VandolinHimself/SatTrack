@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lucius & Wayne Systems — Live Ground Station</title>
+  <meta name="description" content="Real-time satellite tracking, pass prediction, RTL-SDR capture telemetry, and ADS-B aircraft monitoring from an automated ground station. Watch ISS, weather satellites, and amateur radio birds live on a 3D globe." />
+  <meta name="application-name" content="Lucius & Wayne Systems" />
+  <meta name="theme-color" content="#070b14" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="__SITE_URL__/" />
+  <link rel="icon" type="image/png" href="/your-logo.png" />
+  <link rel="apple-touch-icon" href="/your-logo.png" />
+  <link rel="manifest" href="/static/site.webmanifest" />
+  <meta property="og:type" content="website" />
+  <meta property="fb:app_id" content="966242223397117" />
+  <meta property="og:site_name" content="Lucius & Wayne Systems" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:title" content="Lucius & Wayne Systems — Live Ground Station" />
+  <meta property="og:description" content="Real-time satellite tracking, pass prediction, RTL-SDR capture telemetry, and ADS-B aircraft monitoring from an automated ground station. Watch ISS, weather satellites, and amateur radio birds live on a 3D globe." />
+  <meta property="og:url" content="__SITE_URL__/" />
+  <meta property="og:image" content="__SITE_URL__/static/images/og-image.png" />
+  <meta property="og:image:secure_url" content="__SITE_URL__/static/images/og-image.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Lucius & Wayne Systems live ground station — satellite and aircraft tracking dashboard" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Lucius & Wayne Systems — Live Ground Station" />
+  <meta name="twitter:description" content="Real-time satellite tracking, pass prediction, RTL-SDR capture telemetry, and ADS-B aircraft monitoring from an automated ground station." />
+  <meta name="twitter:image" content="__SITE_URL__/static/images/og-image.png" />
+  <meta name="twitter:image:alt" content="Lucius & Wayne Systems live ground station — satellite and aircraft tracking dashboard" />
+  <meta name="apple-mobile-web-app-title" content="L&amp;W Ground Station" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.115/Build/Cesium/Widgets/widgets.css" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script>
+    window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1.115/Build/Cesium/";
+  </script>
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <img class="logo" src="/your-logo.png" alt="Lucius & Wayne Systems" />
+        <div>
+          <h1>Lucius & Wayne Systems</h1>
+          <p class="subtitle" id="observer-name">Ground station</p>
+        </div>
+      </div>
+      <div class="topbar-status">
+        <span class="pill" id="conn-pill">connecting</span>
+        <span class="pill adsb-pill" id="adsb-pill">adsb —</span>
+        <span class="pill phase" id="phase-pill">—</span>
+        <span class="clock" id="utc-clock">—</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="globe-panel">
+        <div id="cesiumContainer"></div>
+        <button type="button" class="globe-home-btn" id="globe-home-btn" title="Home — Plano, TX">⌂ Home</button>
+        <div class="globe-overlay">
+          <div class="recording-pane" id="recording-pane" hidden>
+            <div class="recording-pane-header">
+              <span class="rec-dot"></span>
+              <span class="recording-pane-title" id="recording-pane-title">Recording</span>
+              <span class="recording-pane-status" id="recording-pane-status">listening</span>
+            </div>
+            <div class="recording-pane-sat" id="recording-pane-sat">—</div>
+            <div class="recording-pane-times">
+              <div class="recording-pane-time">
+                <span class="label">Elapsed</span>
+                <span class="value" id="recording-pane-elapsed">0:00</span>
+              </div>
+              <div class="recording-pane-time">
+                <span class="label">Remaining</span>
+                <span class="value" id="recording-pane-remaining">0:00</span>
+              </div>
+            </div>
+            <div class="recording-pane-track">
+              <div class="recording-pane-bar" id="recording-pane-bar"></div>
+            </div>
+            <div class="recording-pane-meta" id="recording-pane-meta"></div>
+          </div>
+          <div class="observer-label" id="observer-label">Plano, TX</div>
+          <div class="reticle-label" id="reticle-label">Next target</div>
+          <div class="follow-hint" id="follow-hint">Following — drag globe to free view</div>
+        </div>
+        <div class="legend" id="legend"></div>
+      </section>
+
+      <aside class="sidebar">
+        <article class="card status-card" id="status-card">
+          <h2>Live status</h2>
+          <p class="status-message" id="status-message">Waiting for data…</p>
+          <div class="recording-progress-wrap" id="recording-progress-wrap" hidden>
+            <div class="recording-progress-label" id="recording-progress-label"></div>
+            <div class="recording-progress-track">
+              <div class="recording-progress-bar" id="recording-progress-bar"></div>
+            </div>
+          </div>
+          <div class="metrics-row" id="status-metrics"></div>
+        </article>
+
+        <article class="card" id="next-pass-card">
+          <h2>Next pass</h2>
+          <div id="next-pass">—</div>
+        </article>
+
+        <article class="card">
+          <h2>Schedule</h2>
+          <div class="schedule-list" id="schedule-list"></div>
+        </article>
+
+        <article class="card">
+          <h2>Satellites</h2>
+          <div class="sat-list" id="sat-list"></div>
+        </article>
+
+        <article class="card">
+          <h2>ADS-B aircraft <a class="card-link" id="kismet-map-link" href="#" target="_blank" rel="noopener">Kismet map ↗</a></h2>
+          <div id="adsb-status" class="adsb-status">Waiting for Kismet…</div>
+          <div class="aircraft-list" id="aircraft-list"></div>
+        </article>
+
+        <article class="card">
+          <h2>Telemetry</h2>
+          <div class="telemetry-stats" id="telemetry-stats"></div>
+          <h3 class="subhead">Recent captures</h3>
+          <div class="capture-list" id="capture-list"></div>
+        </article>
+      </aside>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/cesium@1.115/Build/Cesium/Cesium.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "Lucius & Wayne Systems — Live Ground Station",
+  "short_name": "L&W Ground Station",
+  "description": "Real-time satellite tracking, pass prediction, RTL-SDR telemetry, and ADS-B aircraft monitoring on a live 3D globe.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070b14",
+  "theme_color": "#070b14",
+  "categories": ["utilities", "science"],
+  "icons": [
+    {
+      "src": "/your-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
