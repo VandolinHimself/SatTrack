@@ -47,8 +47,8 @@ class WatcherCfg:
 class KismetCfg:
     """Kismet ADS-B flight map — same ``/phy/ADSB/map_data`` feed as the GUI tab."""
     enabled: bool = True
-    url: str = "http://10.0.10.121:2501"
-    username: str = "lucius"
+    url: str = "http://127.0.0.1:2501"
+    username: str = ""
     password: str = ""
     api_key: str = ""
     password_file: str = ""

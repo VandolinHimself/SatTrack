@@ -66,7 +66,7 @@ and `mode`: `"fm"` for DUV/AFSK (decoded from FM audio) or `"iq"` for PSK/BPSK
 (recorded as raw IQ via `rtl_sdr`, decoded with `--iq`). Decoded frames land as
 `*.kiss` + a `*_telemetry.txt` hexdump in the pass folder.
 
-> gr-satellites isn't on apt/PyPI/conda-forge — build from source (`setup_kali.sh`),
+> gr-satellites isn't on apt/PyPI/conda-forge — `bash scripts/install.sh` builds it,
 > then run `bash scripts/fix_gr_satellites.sh` to wire PYTHONPATH + the launcher wrapper.
 > Without it, `gr_satellites` targets record + archive their wav/IQ only.
 
@@ -74,12 +74,44 @@ Add any bird by NORAD ID + downlink frequency. Toggle `"enabled": false` to
 park one (e.g. ISS SSTV until an event is scheduled). Browse SatDump's pipeline
 IDs with `satdump pipeline --help` for `satdump` targets.
 
-### 2. Install
+### 2. Install (Linux + RTL-SDR)
+
+Plug in your RTL-SDR dongle, then copy-paste from the repo root:
 
 ```bash
-pip install -r requirements.txt          # any OS, for prediction/dev
-# OR full ground station on Kali/Debian:
-bash scripts/setup_kali.sh               # rtl-sdr, sox, satdump, venv, deps
+bash scripts/install.sh
+source .venv/bin/activate
+python run.py doctor
+```
+
+That one script installs **everything** the stack expects:
+
+| Component | Purpose |
+|-----------|---------|
+| **rtl-sdr** | Dongle drivers + `rtl_test`, `rtl_fm`, `rtl_sdr` |
+| **sox** | Audio capture pipeline |
+| **direwolf** / `atest` | ISS APRS / AX.25 decode |
+| **SatDump** | Meteor LRPT + live satellite pipelines (builds from source if not in your repos) |
+| **noaa-apt** | APT weather decode (rtl_fm fallback) |
+| **meteor_demod/decode** | Meteor LRPT fallback decoder |
+| **gr-satellites** | Amateur telemetry (FUNcube, AO-91, …) — built from source |
+| **Kismet** | ADS-B aircraft map + background SDR consumer (SatTrack borrows the dongle only during passes) |
+| **Python venv** | Skyfield, FastAPI dashboard, etc. |
+
+Supported distros: **Debian/Ubuntu**, **Fedora/RHEL**, **Arch**, **openSUSE** (apt/dnf/pacman/zypper).
+Kali works too — `bash scripts/setup_kali.sh` is just an alias for `install.sh`.
+
+Minimal install (skip slow builds):
+
+```bash
+bash scripts/install.sh --minimal   # skips gr-satellites + meteor_demod builds
+```
+
+Windows / no SDR (prediction + dashboard dev only):
+
+```bash
+pip install -r requirements.txt
+python run.py doctor    # runs in dry-run mode automatically
 ```
 
 ### 3. Run
@@ -110,7 +142,14 @@ Tune the cadence in `config.json` → `"watcher": { "heartbeat_seconds": 5 }`.
 
 ---
 
-## Run it as a service (Kali)
+## Run it as a service (Linux)
+
+```bash
+bash scripts/install_service.sh    # installs + starts satwatch.service
+journalctl -u satwatch -f
+```
+
+Or manually:
 
 ```bash
 sudo cp scripts/satwatch.service /etc/systemd/system/
@@ -122,10 +161,15 @@ journalctl -u satwatch -f
 
 ---
 
-## Sharing the RTL-SDR with kismet (or anything else)
+## Sharing the RTL-SDR with Kismet
 
-If another service owns the dongle most of the time, SatTrack can borrow it
-only for the pass and hand it straight back. Add to `config.json`:
+`bash scripts/install.sh` installs and configures **Kismet** automatically:
+rtladsb source on your dongle, `systemctl enable kismet`, and local API at
+`http://127.0.0.1:2501` (no login needed from localhost).
+
+SatTrack **stops Kismet before each satellite pass** and **starts it again
+afterward**, so one dongle can do ADS-B between passes and satellite capture
+during passes. This is already wired in `config.example.json`:
 
 ```json
 "sdr_sharing": {
@@ -143,12 +187,15 @@ Flow per pass: `release_command` → wait `settle_seconds` → capture → (alwa
 even on error) `reacquire_command`. Decode runs *after* the SDR is handed back
 (for offline decoders).
 
-With `watchdog` on, the daemon also keeps the consumer **up** whenever it isn't
+With `watchdog` on, the daemon also keeps Kismet **up** whenever it isn't
 capturing: at startup, and every `watchdog_interval_seconds`, it runs
 `status_command` (exit 0 == up) and re-runs `reacquire_command` if it's down.
 The watchdog never fires during a capture, so it won't fight the deliberate
 `release_command`. The daemon must have rights to run these commands — run it as
 root, or give it passwordless sudo / a polkit rule for `systemctl`.
+
+Skip Kismet entirely: `bash scripts/install.sh --skip-kismet` and set
+`sdr_sharing.enabled` / `kismet.enabled` to `false` in `config.json`.
 
 ## Telemetry / SSA dashboard
 

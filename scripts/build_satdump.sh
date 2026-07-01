@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
-# Build SatDump v2 CLI (no GUI) from source — recommended long-term fix for Kali apt v1.2.3.
+# Build SatDump v2 CLI (no GUI) from source when the distro package is missing/old.
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/pkg_manager.sh
+source "$SCRIPT_DIR/lib/pkg_manager.sh"
 
 PREFIX="${SATDUMP_PREFIX:-/usr/local}"
 BUILD_DIR="${SATDUMP_BUILD_DIR:-/tmp/SatDump-build}"
 
-echo "[*] Installing build deps ..."
-sudo apt update
-sudo apt install -y git build-essential cmake g++ pkgconf \
-  libfftw3-dev libpng-dev libtiff-dev libjemalloc-dev libcurl4-openssl-dev \
-  libvolk-dev libzstd-dev librtlsdr-dev 2>/dev/null || true
+detect_pkg_manager
+pkg_update
+echo "[*] Installing SatDump build deps ..."
+pkg_try_install \
+  "${PKG_BUILD_DEPS[@]}" "${PKG_GIT[@]}" "${PKG_CMAKE[@]}" \
+  "${PKG_FFTW[@]}" "${PKG_PNG[@]}" "${PKG_TIFF[@]}" \
+  "${PKG_JEMALLOC[@]}" "${PKG_CURL_DEV[@]}" \
+  "${PKG_VOLK[@]}" "${PKG_ZSTD[@]}" "${PKG_RTLSDR_DEV[@]}" \
+  "${PKG_PKGCONF[@]}"
 
 echo "[*] Cloning SatDump ..."
 rm -rf "$BUILD_DIR"

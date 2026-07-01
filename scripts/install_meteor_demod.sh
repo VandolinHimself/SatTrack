@@ -2,9 +2,16 @@
 # Build meteor_demod + meteor_decode — METEOR LRPT decode without SatDump.
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/pkg_manager.sh
+source "$SCRIPT_DIR/lib/pkg_manager.sh"
+
+detect_pkg_manager
+pkg_update
 echo "[*] Installing build deps ..."
-sudo apt update
-sudo apt install -y build-essential cmake git libvolk-dev libsndfile1-dev fpc libpng-dev
+pkg_try_install \
+  "${PKG_BUILD_DEPS[@]}" "${PKG_CMAKE[@]}" "${PKG_GIT[@]}" \
+  "${PKG_VOLK[@]}" "${PKG_SNDFILE[@]}" "${PKG_FPC[@]}" "${PKG_PNG[@]}"
 
 WORKDIR="${METEOR_BUILD_DIR:-/tmp/meteor-lrpt-build}"
 mkdir -p "$WORKDIR"
