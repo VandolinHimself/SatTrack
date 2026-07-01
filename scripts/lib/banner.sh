@@ -15,20 +15,31 @@ print_sattrack_banner() {
     reset=; bold=; cyan=; magenta=; yellow=; blue=; dim=
   fi
 
-  if command -v figlet >/dev/null 2>&1; then
-    echo
-    figlet -f slant "SatTrack" 2>/dev/null | sed "s/^/${cyan}/; s/$/${reset}/" || true
-  else
-    cat <<BANNER
-
-${cyan}${bold}    ____             __            ______             __
-   / __/___  ____  / /____  _____/_  __/___  __  __/ /____  _____
-  / _/ / __ \\/ __ \\/ __/ _ \\/ ___// / / __ \\/ / / / __/ _ \\/ ___/
- /___/ / /_/ / /_/ / /_/  __/ /   / / / /_/ / /_/ / /_/  __/ /
-/____/ \\____/ .___/\\__/\\___/_/   /_/  \\____/\\__,_/\\__/\\___/_/
-           /_/${reset}
+  echo
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    echo "${cyan}${bold}${line}${reset}"
+  done <<'BANNER'
+gggQQQQQQQQQQQQQgQQgQggQggQgggQQQQQQQQQQQQQQQQQQQggggggggggggQQQQQgggQggggggggQQQg
+QQQQQQQQQQQQQQQQQQQQQQQQQQQQgQQQQQQQQQQQQQ%4QQQQQggggggQggggQgQgQQQggQQggggMggggQg
+QQQ .QQQQQQQQQQQQQQQQQ vQQQQQQQQQQQQQQQQQ\.! yQgggggggggggQgggQQQQQgQggggggggggggg
+QQQ .QQQQwaQQyRQQySAQQeRQyRQRy%QRey8QQQQQ LQ'|QQQggggggggQgggggQQQMQQggggggggggggg
+QQQ .QQQQ' Qg v$.:< ?Q vQ vQv HS c! #QQQQI :,#QQgQggQggggggQgggQgQMQQQgggggggggggg
+QQQ .QQQQ' QQ v7 RQdaQ vQ vQv Hl LyQQQQQO': v8 AQgggggggggQggggggQQQQggggggggggggg
+QQQ .QQQQ' Qg vv 8QQQQ vQ vQv AQAv: bQQQ^ QO..'QQgggggggggggggggQQQMgggQQggQQggggg
+QQQ .yyyR! eL vA \S'"Q vQ ^5! Oc Zo YQQQr ny^ :WQggQgggggggQgQQggQQgQgQggQgggggggg
+QQQ<<<<<aR\>k<yQO<<vNQ<yQR!<I<DQ7<<oQQQQQf!<sN<vQQgggggQggggggggQQQQggQQgggggggggg
+QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQggggggggggggggggQQgQgggggggggggg
+QQp<aQP;yQ4<qQQQQQQQQQQQQQQQQQQQQQQQQQQv"'<RQQQQQQQQQQQQ8AQgQggggggggggggggggggggg
+QQQ cQv ?Qv QQQQQQQQQQQQQQQQQQQQQQQQQQv AM^ QQQQQQQQQQQQL QQQQQQQgQgQQgQQgggQQgggg
+QQQ" Q:. Q^,g!.':%'^Qo R :. *QS.,.SQQQt vNQQw PQ:^4'^ fv   QL ':Rv : '\  aQ,:.>ggg
+QQQv M R D v%j%Q vz Q\,Q \Qv Q LQL QQQQ{^ :aQ'|M 5v.HRaQ) QD PQ vv %M vQ.Lk hNaQgg
+QQQN , Q:! #R:,< vQ i IQ vQv Q :<<<QQQDaQM< Qi 7.QNL^ LQL Qw ^<<av gQ vQ.vQn! ^Qgg
+QQQQ. \Qv  Qv DO vQL' QQ vQv Q'>Qv?QQQT 5b! QQ 'vg2|Q* Qv 6% TN!av QQ vQ.LV<DA Ogg
+QQQQy;yQw>5gQ?<v<yQN LQQ<yQy<QR*<<RQQQQs><*RQQ| QgR\<!RQR!!QP!<LQy<gQ<yQ\ygv><iggg
+QggQQQQQQQQQQQQQQQV".MQQQQQQQQQQQQQQQQQQQQQQQ*'?QQQQQQQQQQQQQQQQQQQQQQQQQggggggggg
+QQgQQQQQQQQQQQQQQQRyMQQQQQQQQQQQQQQQQQQQQQQQQabQQQQQQQQQQQQQQQQQQQQggggggggggggggg
+QQQgQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQggggggggggggggg
 BANNER
-  fi
 
   cat <<TAGLINE
 
