@@ -19,9 +19,6 @@ It's the Orbitron + scheduler + receiver glue replaced by a single repo.
 
 ![SatTrack web dashboard — live 3D globe, pass schedule, and capture status](screenshot.png)
 
-```
-python run.py        # start auto-monitoring the sky
-```
 
 ---
 
