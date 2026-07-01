@@ -1,6 +1,6 @@
 """NORAD / Celestrak TLE ingestion.
 
-A cross-platform, importable evolution of the original ``tle_gen.py``:
+A cross-platform, importable evolution of ``scripts/tle_gen.py``:
 
 * fetches GP/TLE data for a list of NORAD catalog IDs from Celestrak
 * caches by content hash so we only log "real" updates
@@ -184,7 +184,7 @@ def _stamp_update() -> None:
 
 
 def read_satellites_file(file_path: str | os.PathLike) -> List[int]:
-    """Parse a plain ``satellites.txt`` of NORAD IDs (compat with tle_gen.py)."""
+    """Parse a plain ``satellites.txt`` of NORAD IDs (compat with scripts/tle_gen.py)."""
     p = Path(file_path)
     if not p.exists():
         raise FileNotFoundError(f"File not found: {p}")

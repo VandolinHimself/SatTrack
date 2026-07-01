@@ -4,16 +4,19 @@ __author__ = "Van Graham"
 __version__ = "2.0"
 
 from argparse import ArgumentParser
-import requests
-from os import path, makedirs
-import logging
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
+from pathlib import Path
 import hashlib
+import logging
+from os import makedirs, path
+import requests
 
 NORAD_URL = "https://celestrak.org/NORAD/elements/gp.php"
 CACHE_DIR = "/var/lib/sattracker/cache"
 OUT_FILE = "/var/lib/sattracker/custom.tle"
-TR_FILE = "satellites.txt"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_SATELLITES_FILE = REPO_ROOT / "satellites.txt"
 
 
 def read_satellites_file(file_path: str) -> list:
@@ -95,6 +98,7 @@ if __name__ == "__main__":
 
     parser = ArgumentParser(description="NORAD TLE generator (refactored)", prog="tle_gen")
     parser.add_argument("-i", "--input", help="Comma-separated NORAD IDs")
+    parser.add_argument("-f", "--file", help="Satellites list file (default: repo satellites.txt)")
     parser.add_argument("-o", "--output", help="Output TLE file")
     args = parser.parse_args()
 
@@ -103,7 +107,8 @@ if __name__ == "__main__":
     if args.input:
         input_list = args.input.replace(" ", "").split(",")
     else:
-        input_list = read_satellites_file(TR_FILE)
+        sat_file = args.file if args.file else str(DEFAULT_SATELLITES_FILE)
+        input_list = read_satellites_file(sat_file)
 
     if not input_list:
         logging.error("No satellites provided")
@@ -129,6 +134,6 @@ if __name__ == "__main__":
 
     logging.info(f"Updated TLE written: {out_file}")
 
-with open("/var/lib/sattracker/last_update.txt", "w") as f:
-    from datetime import datetime
-    f.write(datetime.utcnow().isoformat() + "Z\n")
+    makedirs(path.dirname(OUT_FILE), exist_ok=True)
+    with open("/var/lib/sattracker/last_update.txt", "w") as f:
+        f.write(datetime.now(timezone.utc).isoformat().replace("+00:00", "Z") + "\n")

@@ -23,7 +23,7 @@ pick_python() {
 }
 
 PYTHON="$(pick_python)" || {
-  echo "[!] No python found. Install deps: bash scripts/install.sh"
+  echo "[!] No python found. Install deps: bash install.sh"
   exit 1
 }
 
@@ -33,7 +33,7 @@ fi
 
 if ! (cd "$REPO_DIR" && "$PYTHON" run.py doctor >/dev/null 2>&1); then
   echo "[!] $PYTHON cannot run SatTrack from $REPO_DIR"
-  echo "    Try: bash scripts/install.sh   (creates .venv + deps)"
+  echo "    Try: bash install.sh   (creates .venv + deps)"
   exit 1
 fi
 

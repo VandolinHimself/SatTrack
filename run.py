@@ -427,7 +427,7 @@ def cmd_doctor(args) -> int:
         print(f"  satdump smoke test : {'OK' if sd_ok else sd_msg}")
     print(f"  meteor_demod       : {have('meteor_demod')}  meteor_decode: {have('meteor_decode')}")
     if not have("meteor_demod"):
-        print("                       install: bash scripts/install.sh  (or install_meteor_demod.sh)")
+        print("                       install: bash install.sh  (or install_meteor_demod.sh)")
     print(f"  tools              : satdump={have('satdump')} rtl_fm={have('rtl_fm')} "
           f"sox={have('sox')} rtl_sdr={have('rtl_sdr')}")
     print(f"  decoders           : noaa-apt={have('noaa-apt')} atest/direwolf(APRS)={have('atest')} "
@@ -470,7 +470,7 @@ def cmd_doctor(args) -> int:
         if kismet_bin:
             print(f"  kismet binary       : {kismet_bin}")
         else:
-            print("  kismet binary       : NOT FOUND — run: bash scripts/install.sh")
+            print("  kismet binary       : NOT FOUND — run: bash install.sh")
         adsb = fetch_adsb(config)
         st = "OK" if adsb.get("online") else adsb.get("error", "down")
         if adsb.get("auth_required"):

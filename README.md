@@ -49,7 +49,7 @@ deploys unchanged to your Kali box.
 Plug in your RTL-SDR dongle, then copy-paste from the repo root:
 
 ```bash
-bash scripts/install.sh
+bash install.sh
 source .venv/bin/activate
 python run.py doctor
 python run.py
@@ -68,7 +68,7 @@ python3 scripts/configure_wizard.py
 Headless / CI (skip prompts, use template defaults):
 
 ```bash
-bash scripts/install.sh --non-interactive
+bash install.sh --non-interactive
 ```
 
 That one script installs **everything** the stack expects:
@@ -89,7 +89,7 @@ and `mode`: `"fm"` for DUV/AFSK (decoded from FM audio) or `"iq"` for PSK/BPSK
 (recorded as raw IQ via `rtl_sdr`, decoded with `--iq`). Decoded frames land as
 `*.kiss` + a `*_telemetry.txt` hexdump in the pass folder.
 
-> gr-satellites isn't on apt/PyPI/conda-forge — `bash scripts/install.sh` builds it,
+> gr-satellites isn't on apt/PyPI/conda-forge — `bash install.sh` builds it,
 > then run `bash scripts/fix_gr_satellites.sh` to wire PYTHONPATH + the launcher wrapper.
 > Without it, `gr_satellites` targets record + archive their wav/IQ only.
 
@@ -102,7 +102,7 @@ IDs with `satdump pipeline --help` for `satdump` targets.
 Plug in your RTL-SDR dongle, then copy-paste from the repo root:
 
 ```bash
-bash scripts/install.sh
+bash install.sh
 source .venv/bin/activate
 python run.py doctor
 ```
@@ -127,7 +127,7 @@ Kali works too — `bash scripts/setup_kali.sh` is just an alias for `install.sh
 Minimal install (skip slow builds):
 
 ```bash
-bash scripts/install.sh --minimal   # skips gr-satellites + meteor_demod builds
+bash install.sh --minimal   # skips gr-satellites + meteor_demod builds
 ```
 
 Windows / no SDR (prediction + dashboard dev only):
@@ -206,7 +206,7 @@ journalctl -u satwatch -f
 
 ## Sharing the RTL-SDR with Kismet
 
-`bash scripts/install.sh` installs and configures **Kismet** automatically:
+`bash install.sh` installs and configures **Kismet** automatically:
 rtladsb source on your dongle, `systemctl enable kismet`, and local API at
 `http://127.0.0.1:2501` (no login needed from localhost).
 
@@ -237,7 +237,7 @@ The watchdog never fires during a capture, so it won't fight the deliberate
 `release_command`. The daemon must have rights to run these commands — run it as
 root, or give it passwordless sudo / a polkit rule for `systemctl`.
 
-Skip Kismet entirely: `bash scripts/install.sh --skip-kismet` and set
+Skip Kismet entirely: `bash install.sh --skip-kismet` and set
 `sdr_sharing.enabled` / `kismet.enabled` to `false` in `config.json`.
 
 ## Telemetry / SSA dashboard
