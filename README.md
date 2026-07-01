@@ -44,21 +44,34 @@ deploys unchanged to your Kali box.
 
 ## Quick start
 
-### 1. Configure your station — `config.json`
+### 1. Install (Linux + RTL-SDR)
 
-```json
-{
-  "observer": { "name": "Plano, TX", "latitude": 33.021746, "longitude": -96.730463, "elevation_m": 180 },
-  "prediction": { "min_elevation_deg": 5.0, "horizon_hours": 24 },
-  "satellites": [
-    { "norad_id": 25544, "name": "ISS (APRS)",  "freq_mhz": 145.825, "decoder": "aprs" },
-    { "norad_id": 57166, "name": "METEOR-M2 3", "freq_mhz": 137.9,   "decoder": "satdump", "pipeline": "meteor_m2-x_lrpt", "samplerate": 1024000 },
-    { "norad_id": 43017, "name": "AO-91",       "freq_mhz": 145.96,  "decoder": "fm" }
-  ]
-}
+Plug in your RTL-SDR dongle, then copy-paste from the repo root:
+
+```bash
+bash scripts/install.sh
+source .venv/bin/activate
+python run.py doctor
+python run.py
 ```
 
-### Targets & decoders
+The installer opens with a banner, then walks you through a **setup wizard** —
+station name, coordinates, which satellites to track, Kismet/ADS-B, gain/PPM —
+and writes `config.json` for you. No manual JSON editing required.
+
+Re-run the wizard anytime:
+
+```bash
+python3 scripts/configure_wizard.py
+```
+
+Headless / CI (skip prompts, use template defaults):
+
+```bash
+bash scripts/install.sh --non-interactive
+```
+
+That one script installs **everything** the stack expects:
 
 Each satellite's `decoder` picks how RF becomes data:
 
@@ -124,7 +137,7 @@ pip install -r requirements.txt
 python run.py doctor    # runs in dry-run mode automatically
 ```
 
-### 3. Run
+### 2. Run
 
 ```bash
 python run.py doctor                 # check env + whether SDR is detected
@@ -133,9 +146,29 @@ python run.py doppler "NOAA 19"      # Doppler curve for its next pass
 python run.py decode capture.wav     # decode an existing APT audio wav (aptdec)
 python run.py                        # START auto-monitoring (the daemon)
 python run.py stats                  # telemetry summary
+python run.py serve                  # web dashboard on :8082
 ```
 
 Stop the daemon with `Ctrl-C`.
+
+### 3. Advanced — edit `config.json` by hand
+
+The wizard covers the essentials. For fine-tuning, edit `config.json` directly
+(or copy from `config.example.json`). Example observer + satellite entries:
+
+```json
+{
+  "observer": { "name": "Plano, TX", "latitude": 33.021746, "longitude": -96.730463, "elevation_m": 180 },
+  "prediction": { "min_elevation_deg": 5.0, "horizon_hours": 24 },
+  "satellites": [
+    { "norad_id": 25544, "name": "ISS (APRS)",  "freq_mhz": 145.825, "decoder": "aprs" },
+    { "norad_id": 57166, "name": "METEOR-M2 3", "freq_mhz": 137.9,   "decoder": "satdump", "pipeline": "meteor_m2-x_lrpt", "samplerate": 1024000 },
+    { "norad_id": 43017, "name": "AO-91",       "freq_mhz": 145.96,  "decoder": "fm" }
+  ]
+}
+```
+
+#### Targets & decoders
 
 While running, the daemon prints a **heartbeat** status line every few seconds
 so you always see it's alive — countdown to the next AOS, or live elapsed/
