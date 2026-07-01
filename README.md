@@ -1,11 +1,19 @@
 # SatTrack
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A mini satellite **ground-station automation + SSA** stack. Point it at your
 location, run one Python file, and it will track a fleet of satellites (ISS,
 amateur birds, CubeSats, Meteor weather imagery, ...), tune an RTL-SDR **only
 while a target is above the horizon**, record + decode the pass with the right
 decoder for that target, and log telemetry (Doppler, SNR, pass-quality score)
 to SQLite for a Grafana dashboard.
+
+SatTrack is glue around two excellent open-source SDR projects: **[Kismet](https://www.kismetwireless.net/)**
+for continuous ADS-B aircraft tracking on the dongle, and **[SatDump](https://github.com/SatDump/SatDump)**
+for live satellite capture and decode. This repo combines their efforts into one
+automated ground station — scheduling passes, handing the RTL-SDR between them,
+and surfacing everything in a single dashboard.
 
 It's the Orbitron + scheduler + receiver glue replaced by a single repo.
 
@@ -266,3 +274,18 @@ be added as a "fill the gaps between passes" continuous mode.
 | AO-91 (DUV telemetry) | 145.960 MHz | `gr_satellites` |
 | AO-73 FUNcube (BPSK telemetry) | 145.935 MHz | `gr_satellites` (IQ) |
 | SO-50 (FM voice) | 436.795 MHz | `fm` |
+
+---
+
+## License
+
+SatTrack is released under the [MIT License](LICENSE).
+
+This stack builds on and integrates with:
+
+- **[Kismet](https://www.kismetwireless.net/)** — wireless monitoring, RTL-SDR ADS-B, and the REST API the dashboard uses for live aircraft
+- **[SatDump](https://github.com/SatDump/SatDump)** — live satellite pipelines (Meteor LRPT, APT, and more)
+
+Kismet and SatDump are separate projects with their own licenses and authors.
+SatTrack does not bundle their source; the install script pulls them from your
+distro packages or their upstream repos.
