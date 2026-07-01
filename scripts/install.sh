@@ -196,8 +196,7 @@ install_gr_satellites() {
 }
 
 patch_config_for_local_kismet() {
-  local cfg="$REPO_DIR/config.json"
-  [[ -f "$cfg" ]] || cfg="$REPO_DIR/config.example.json"
+  local cfg="$1"
   [[ -f "$cfg" ]] || return 0
   python3 - "$cfg" <<'PY'
 import json, sys
@@ -205,12 +204,12 @@ path = sys.argv[1]
 with open(path, encoding="utf-8") as f:
     data = json.load(f)
 km = data.setdefault("kismet", {})
-if km.get("url", "").startswith("http://10.") or km.get("url") == "http://10.0.10.121:2501":
-    km["url"] = "http://127.0.0.1:2501"
-    km.setdefault("username", "")
-    km.setdefault("password", "")
+km["enabled"] = True
+km["url"] = "http://127.0.0.1:2501"
+km.setdefault("username", "")
+km.setdefault("password", "")
 share = data.setdefault("sdr_sharing", {})
-share.setdefault("enabled", True)
+share["enabled"] = True
 share.setdefault("release_command", "systemctl stop kismet")
 share.setdefault("reacquire_command", "systemctl start kismet")
 share.setdefault("status_command", "systemctl is-active --quiet kismet")
@@ -218,7 +217,7 @@ share.setdefault("watchdog", True)
 with open(path, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=2)
     f.write("\n")
-print(f"  patched {path} for local Kismet (127.0.0.1:2501)")
+print(f"  configured {path} for local Kismet (127.0.0.1:2501)")
 PY
 }
 
@@ -244,8 +243,10 @@ main() {
   log "SatTrack installer — detected package manager: $PKG_MGR"
   log "Repo: $REPO_DIR"
 
+  local created_config=0
   if [[ ! -f "$REPO_DIR/config.json" ]] && [[ -f "$REPO_DIR/config.example.json" ]]; then
     cp "$REPO_DIR/config.example.json" "$REPO_DIR/config.json"
+    created_config=1
     log "Created config.json from config.example.json — edit observer location before running."
   fi
 
@@ -263,7 +264,9 @@ main() {
 
   if [[ "$SKIP_KISMET" -eq 0 ]]; then
     install_kismet || true
-    patch_config_for_local_kismet || true
+    if [[ "$created_config" -eq 1 ]]; then
+      patch_config_for_local_kismet "$REPO_DIR/config.json" || true
+    fi
   else
     warn "Skipping Kismet (--skip-kismet)"
   fi
